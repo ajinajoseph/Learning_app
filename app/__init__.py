@@ -76,6 +76,24 @@ def create_app(config=None):
         return response
 
     db.init_app(app)
+    from sqlalchemy import text
+
+    with app.app_context():
+        print("=" * 50)
+        print("DATABASE URI:", app.config["SQLALCHEMY_DATABASE_URI"])
+
+        result = db.session.execute(text("""
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_schema='public'
+            ORDER BY table_name;
+        """))
+
+        print("TABLES:")
+        for row in result:
+            print(row[0])
+
+        print("=" * 50)
     migrate.init_app(app, db)
     jwt.init_app(app)
     mail.init_app(app)
