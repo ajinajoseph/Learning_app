@@ -8,9 +8,12 @@ from app.extensions import db
 
 from app.models.course import Course
 from app.models.enrollment import Enrollment
-
+from app.models.user import User, UserRole
 from app.middleware.role_required import role_required
-
+from app.services.payment_service import has_completed_payment
+from app.services.email_service import (
+    send_email
+)
 
 enrollment_bp = Blueprint(
     "enrollment",
@@ -21,7 +24,7 @@ enrollment_bp = Blueprint(
 
 @enrollment_bp.route("/<course_id>", methods=["POST"])
 @jwt_required()
-@role_required("student")
+@role_required(UserRole.STUDENT)
 def enroll_course(course_id):
 
     user_id = get_jwt_identity()
@@ -33,6 +36,11 @@ def enroll_course(course_id):
             "message": "Course not found"
         }), 404
 
+    if not course.is_approved:
+        return jsonify({
+            "message": "Course is not available for enrollment"
+        }), 403
+
     existing = Enrollment.query.filter_by(
         student_id=user_id,
         course_id=course_id
@@ -42,6 +50,11 @@ def enroll_course(course_id):
         return jsonify({
             "message": "Already enrolled"
         }), 400
+
+    if course.price > 0 and not has_completed_payment(user_id, course_id):
+        return jsonify({
+            "message": "Payment required before enrollment"
+        }), 402
 
     enrollment = Enrollment(
         student_id=user_id,
@@ -59,6 +72,14 @@ def enroll_course(course_id):
         "New Enrollment",
         f"A student enrolled in {course.title}"
     )
+    mentor = User.query.get(
+    course.mentor_id
+)
+    send_email(
+        mentor.email,
+        "New Enrollment",
+        f"A student enrolled in '{course.title}'"
+    )
 
     return jsonify({
         "message": "Enrollment successful"
@@ -67,7 +88,7 @@ def enroll_course(course_id):
 
 @enrollment_bp.route("/my-courses", methods=["GET"])
 @jwt_required()
-@role_required("student")
+@role_required(UserRole.STUDENT)
 def my_courses():
 
     user_id = get_jwt_identity()

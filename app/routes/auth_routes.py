@@ -10,7 +10,7 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
 from app.extensions import db
 
-from app.models.user import User
+from app.models.user import User, UserRole
 
 
 auth_bp = Blueprint(
@@ -41,8 +41,6 @@ def register():
     email = data.get("email", "").strip()
 
     password = data.get("password", "").strip()
-
-    role = data.get("role", "student")
 
     if not name:
         return jsonify({
@@ -75,10 +73,22 @@ def register():
             "message": "Email already exists"
         }), 400
 
+    role_str = data.get("role", "student").strip().lower()
+
+    try:
+        role = UserRole(role_str)
+    except ValueError:
+        return jsonify({
+            "message": "Invalid role"
+        }), 400
+
+    is_approved = False if role == UserRole.MENTOR else True
+
     user = User(
         name=name,
         email=email,
-        role=role
+        role=role,
+        is_approved=is_approved
     )
 
     user.set_password(password)

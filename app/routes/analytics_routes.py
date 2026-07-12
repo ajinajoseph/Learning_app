@@ -18,7 +18,11 @@ from app.models.module import Module
 from app.models.lesson import Lesson
 
 from app.models.progress import Progress
-from app.models.review import Review
+from app.models.review import Review, ReviewStatus
+from app.services.review_service import (
+    calculate_average_rating,
+    calculate_weighted_rating,
+)
 from app.models.enrollment import Enrollment
 
 
@@ -33,10 +37,7 @@ analytics_bp = Blueprint(
     "/course/<course_id>"
 )
 @jwt_required()
-@role_required(
-    UserRole.MENTOR.value,
-    UserRole.ADMIN.value
-)
+@role_required(UserRole.ADMIN, UserRole.MENTOR)
 def course_analytics(course_id):
 
     user_id = get_jwt_identity()
@@ -64,16 +65,12 @@ def course_analytics(course_id):
     ).count()
 
     total_reviews = Review.query.filter_by(
-        course_id=course_id
+        course_id=course_id,
+        status=ReviewStatus.APPROVED,
     ).count()
 
-    average_rating = db.session.query(
-        func.avg(
-            Review.rating
-        )
-    ).filter(
-        Review.course_id == course_id
-    ).scalar()
+    average_rating = calculate_average_rating(course_id)
+    weighted_rating = calculate_weighted_rating(course_id)
 
     modules = Module.query.filter_by(
         course_id=course_id
@@ -124,10 +121,9 @@ def course_analytics(course_id):
 
         "total_reviews": total_reviews,
 
-        "average_rating": round(
-            average_rating or 0,
-            2
-        ),
+        "average_rating": average_rating,
+
+        "weighted_rating": weighted_rating,
 
         "completion_rate": round(
             completion_rate,

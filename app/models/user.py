@@ -45,6 +45,12 @@ class User(db.Model):
         default=UserRole.STUDENT
     )
 
+    is_approved = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=True,
+    )
+
     created_at = db.Column(
         db.DateTime,
         server_default=db.func.now()
@@ -62,9 +68,12 @@ class User(db.Model):
         )
 
     def to_dict(self):
-        return {
+        data = {
             "id": self.id,
             "name": self.name,
             "email": self.email,
-            "role": self.role.value
+            "role": self.role.value,
         }
+        if self.role == UserRole.MENTOR:
+            data["is_approved"] = self.is_approved
+        return data

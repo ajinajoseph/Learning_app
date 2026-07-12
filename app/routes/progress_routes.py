@@ -7,12 +7,18 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
 from app.middleware.role_required import role_required
 from app.extensions import db
-from app.models.user import UserRole
+from app.models.user import User, UserRole
 from app.models.lesson import Lesson
 from app.models.progress import Progress
 from app.models.module import Module
 from app.models.course import Course
 from app.models.enrollment import Enrollment
+from app.models.quiz import Quiz
+from app.services.certificate_service import (
+    is_course_completed,
+    issue_certificate,
+)
+from app.services.quiz_service import has_passed_quiz
 
 progress_bp = Blueprint(
     "progress",
@@ -51,6 +57,19 @@ def complete_lesson(lesson_id):
         return jsonify({
             "message": "You are not enrolled in this course"
         }), 403
+
+    existing = Progress.query.filter_by(
+        student_id=user_id, lesson_id=lesson_id
+    ).first()
+    if existing:
+        return jsonify({"message": "Already completed"}), 200
+
+    quiz = Quiz.query.filter_by(lesson_id=lesson_id).first()
+    if quiz and not has_passed_quiz(user_id, quiz):
+        return jsonify({
+            "message": "Pass the lesson quiz before marking this lesson complete"
+        }), 400
+
     progress = Progress.query.filter_by(
         student_id=user_id,
         lesson_id=lesson_id
@@ -70,7 +89,16 @@ def complete_lesson(lesson_id):
         progress.completed = True
         progress.completed_at = datetime.utcnow()
 
+
     db.session.commit()
+    if is_course_completed(user_id, course.id):
+        user = User.query.get(user_id)
+        issue_certificate(
+            user_id,
+            course.id,
+            student_name=user.name,
+            course_name=course.title,
+        )
 
     return jsonify({
         "message": "Lesson marked completed"
@@ -118,11 +146,14 @@ def get_course_progress(course_id):
         for lesson in lessons
     ]
 
-    completed_lessons = Progress.query.filter(
+    completed_progress_records = Progress.query.filter(
         Progress.student_id == user_id,
         Progress.lesson_id.in_(lesson_ids),
         Progress.completed == True
-    ).count()
+    ).all()
+
+    completed_lessons = len(completed_progress_records)
+    completed_lesson_ids = [p.lesson_id for p in completed_progress_records]
 
     percentage = 0
 
@@ -133,8 +164,12 @@ def get_course_progress(course_id):
         ) * 100
 
     return jsonify({
-        "course_id": course_id,
-        "completed_lessons": completed_lessons,
+        "completed_lessons": [{"lesson_id": str(p.lesson_id)} for p in completed_progress_records],
+        "progress_percentage": round(percentage, 2),
         "total_lessons": total_lessons,
-        "percentage": round(percentage, 2)
+        "completed_count": completed_lessons,
+        # Keep existing fields for backward compatibility
+        "course_id": course_id,
+        "percentage": round(percentage, 2),
+        "completed_lesson_ids": completed_lesson_ids
     })

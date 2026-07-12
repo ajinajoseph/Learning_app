@@ -24,6 +24,12 @@ class Quiz(db.Model):
         nullable=False
     )
 
+    pass_percentage = db.Column(
+        db.Float,
+        nullable=False,
+        default=70.0,
+    )
+
     created_at = db.Column(
         db.DateTime,
         server_default=db.func.now()
@@ -34,5 +40,6 @@ class Quiz(db.Model):
         return {
             "id": self.id,
             "title": self.title,
-            "lesson_id": self.lesson_id
+            "lesson_id": self.lesson_id,
+            "pass_percentage": self.pass_percentage,
         }

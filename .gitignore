@@ -3,3 +3,9 @@ venv/
 __pycache__/
 *.pyc
 instance/
+.env.test
+*.db
+test.db
+node_modules/
+dist/
+.coverage

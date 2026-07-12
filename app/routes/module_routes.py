@@ -8,9 +8,10 @@ from flask_jwt_extended import get_jwt_identity
 from app.extensions import db
 from app.models.user import UserRole
 from app.middleware.role_required import role_required
+from app.middleware.mentor_approved import approved_mentor_required
 from app.models.module import Module
 from app.models.course import Course
-from app.models.user import User
+from app.services.curriculum_service import next_sort_order, ordered_modules
 
 module_bp = Blueprint(
     "module",
@@ -21,6 +22,7 @@ module_bp = Blueprint(
 @module_bp.route("", methods=["POST"])
 @jwt_required()
 @role_required(UserRole.MENTOR)
+@approved_mentor_required
 def create_module():
 
     user_id = get_jwt_identity()
@@ -44,7 +46,11 @@ def create_module():
     module = Module(
         title=data["title"],
         description=data.get("description"),
-        course_id=data["course_id"]
+        course_id=data["course_id"],
+        sort_order=data.get(
+            "sort_order",
+            next_sort_order(Module, course_id=data["course_id"]),
+        ),
     )
 
     db.session.add(module)
@@ -58,9 +64,7 @@ def create_module():
 @module_bp.route("/course/<course_id>")
 def get_modules(course_id):
 
-    modules = Module.query.filter_by(
-        course_id=course_id
-    ).all()
+    modules = ordered_modules(course_id)
 
     return jsonify([
         module.to_dict()
@@ -84,6 +88,7 @@ def get_module(module_id):
 @module_bp.route("/<module_id>", methods=["PUT"])
 @jwt_required()
 @role_required(UserRole.MENTOR)
+@approved_mentor_required
 def update_module(module_id):
 
     user_id = get_jwt_identity()
@@ -116,6 +121,9 @@ def update_module(module_id):
         module.description
     )
 
+    if "sort_order" in data:
+        module.sort_order = data["sort_order"]
+
     db.session.commit()
 
     return jsonify(
@@ -125,6 +133,7 @@ def update_module(module_id):
 @module_bp.route("/<module_id>", methods=["DELETE"])
 @jwt_required()
 @role_required(UserRole.MENTOR)
+@approved_mentor_required
 def delete_module(module_id):
 
     user_id = get_jwt_identity()

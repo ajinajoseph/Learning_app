@@ -22,11 +22,7 @@ notification_bp = Blueprint(
 
 @notification_bp.route("")
 @jwt_required()
-@role_required(
-    UserRole.STUDENT.value,
-    UserRole.MENTOR.value,
-    UserRole.ADMIN.value
-)
+@role_required(UserRole.STUDENT, UserRole.MENTOR, UserRole.ADMIN)
 def get_notifications():
 
     user_id = get_jwt_identity()
@@ -49,9 +45,9 @@ def get_notifications():
 )
 @jwt_required()
 @role_required(
-    UserRole.STUDENT.value,
-    UserRole.MENTOR.value,
-    UserRole.ADMIN.value
+    UserRole.STUDENT,
+    UserRole.MENTOR,
+    UserRole.ADMIN
 )
 def mark_read(notification_id):
 
@@ -85,9 +81,9 @@ def mark_read(notification_id):
 )
 @jwt_required()
 @role_required(
-    UserRole.STUDENT.value,
-    UserRole.MENTOR.value,
-    UserRole.ADMIN.value
+    UserRole.STUDENT,
+    UserRole.MENTOR,
+    UserRole.ADMIN
 )
 def unread_count():
 

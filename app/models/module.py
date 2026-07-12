@@ -29,6 +29,12 @@ class Module(db.Model):
         nullable=False
     )
 
+    sort_order = db.Column(
+        db.Integer,
+        nullable=False,
+        default=0,
+    )
+
     created_at = db.Column(
         db.DateTime,
         server_default=db.func.now()
@@ -45,5 +51,6 @@ class Module(db.Model):
             "id": self.id,
             "title": self.title,
             "description": self.description,
-            "course_id": self.course_id
+            "course_id": self.course_id,
+            "sort_order": self.sort_order,
         }
