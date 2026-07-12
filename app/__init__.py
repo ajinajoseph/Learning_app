@@ -42,6 +42,9 @@ from app.routes.announcement_routes import announcement_bp
 from app.routes.payment_routes import payment_bp
 from app.routes.search_routes import search_bp
 
+import os
+from flask import send_from_directory
+
 def create_app(config=None):
     app = Flask(__name__)
 
@@ -112,9 +115,6 @@ def create_app(config=None):
     app.register_blueprint(certificate_bp)
     app.register_blueprint(payment_bp)
     app.register_blueprint(search_bp)
-
-    import os
-    from flask import send_from_directory
 
     @app.route('/uploads/<path:filename>')
     def serve_upload(filename):
