@@ -134,6 +134,12 @@ def create_app(config=None):
     app.register_blueprint(payment_bp)
     app.register_blueprint(search_bp)
 
+    @app.route("/")
+    def home():
+        return {
+            "message": "Learning Platform API is running"
+        }, 200
+
     @app.route('/uploads/<path:filename>')
     def serve_upload(filename):
         return send_from_directory(
