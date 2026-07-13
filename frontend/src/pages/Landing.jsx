@@ -48,29 +48,6 @@ const Landing = () => {
     { name: 'Languages', count: '30+ Courses', query: 'language', icon: '🗣️' },
   ];
 
-  const testimonials = [
-    {
-      name: 'Sarah Jenkins',
-      role: 'Software Engineer at Google',
-      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-      quote: 'EduFlex completely changed my career path. The React curriculum was so thorough and structured that I was able to land a frontend job in less than 6 months of starting.',
-      rating: 5,
-    },
-    {
-      name: 'Marcus Chen',
-      role: 'Self-Taught Data Analyst',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-      quote: 'The Python course here is top tier. Being able to code along, take quizzes, and earn an shareable certificate allowed me to prove my skills to my current manager.',
-      rating: 5,
-    },
-    {
-      name: 'Elena Rostova',
-      role: 'UI/UX Designer',
-      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&auto=format&fit=crop&q=80',
-      quote: 'I love how responsive the learning sidebar is and how mentors actively reply in the Q&A section. The learning experience feels highly personalized.',
-      rating: 5,
-    },
-  ];
 
   return (
     <div className="bg-[#F9FAFB] min-h-screen">
@@ -127,9 +104,9 @@ const Landing = () => {
             <div className="lg:col-span-5 hidden lg:block relative">
               <div className="relative mx-auto w-full max-w-[420px] aspect-square rounded-3xl overflow-hidden shadow-2xl border border-indigo-400/30">
                 <img 
-                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&auto=format&fit=crop&q=80" 
-                  alt="Students collaborating"
-                  className="w-full h-full object-cover"
+                   src="https://plus.unsplash.com/premium_vector-1720670407512-4fdfe6e67a18?q=80&w=1039&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  alt="Learning illustration"
+                  className="w-full h-full object-contain p-6"
                 />
                 <div className="absolute inset-0 bg-indigo-900/10"></div>
               </div>
@@ -246,49 +223,6 @@ const Landing = () => {
                 Apply as Instructor <ChevronRight className="w-4 h-4 text-indigo-900" />
               </Link>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Testimonials */}
-      <section className="bg-white py-16 lg:py-20 border-t border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">What Our Students Say</h2>
-            <p className="text-slate-500 mt-2">Hear directly from self-paced graduates who unlocked their dream careers.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((test, idx) => (
-              <div 
-                key={idx} 
-                className="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-100 relative flex flex-col justify-between"
-              >
-                <Quote className="absolute top-6 right-6 w-8 h-8 text-slate-200" />
-                <div className="space-y-4">
-                  <div className="flex gap-0.5">
-                    {Array(test.rating).fill(0).map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
-                    ))}
-                  </div>
-                  <p className="text-slate-650 text-sm italic leading-relaxed text-slate-655 text-slate-600">
-                    "{test.quote}"
-                  </p>
-                </div>
-                
-                <div className="flex items-center gap-3.5 mt-6 pt-4 border-t border-slate-200">
-                  <img
-                    src={test.image}
-                    alt={test.name}
-                    className="w-10 h-10 rounded-full object-cover shrink-0"
-                  />
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-sm leading-none">{test.name}</h4>
-                    <span className="text-xs text-slate-450 text-slate-400 block mt-1">{test.role}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>

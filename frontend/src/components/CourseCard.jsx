@@ -8,20 +8,19 @@ export const getCourseThumbnail = (title = '') => {
     return 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&auto=format&fit=crop&q=80';
   }
   if (t.includes('python') || t.includes('django') || t.includes('backend') || t.includes('flask')) {
-    return 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&auto=format&fit=crop&q=80';
+    return 'https://images.unsplash.com/photo-1649180556628-9ba704115795?q=80&w=400&auto=format&fit=crop';
   }
   if (t.includes('design') || t.includes('ux') || t.includes('ui') || t.includes('figma')) {
-    return 'https://images.unsplash.com/photo-1561070791-26c113006238?w=400&auto=format&fit=crop&q=80';
+    return 'https://images.unsplash.com/photo-1587440871875-191322ee64b0?q=80&w=400&auto=format&fit=crop';
   }
   if (t.includes('business') || t.includes('marketing') || t.includes('finance') || t.includes('sales')) {
     return 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&auto=format&fit=crop&q=80';
   }
   if (t.includes('data') || t.includes('machine') || t.includes('ai') || t.includes('science') || t.includes('database')) {
-    return 'https://images.unsplash.com/photo-1527474305487-b87b222841cc?w=400&auto=format&fit=crop&q=80';
+    return 'https://plus.unsplash.com/premium_photo-1661878265739-da90bc1af051?q=80&w=400&auto=format&fit=crop';
   }
   return 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&auto=format&fit=crop&q=80';
 };
-
 const CourseCard = ({ course, progress, isMentorView,onView }) => {
   const { id, title, price, level, duration_hours, language, tags } = course;
 

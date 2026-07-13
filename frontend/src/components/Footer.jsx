@@ -21,11 +21,6 @@ const Footer = () => {
             <p className="text-sm text-slate-400 leading-relaxed">
               EduFlex is a modern online learning platform offering high-quality courses curated by industry experts. Empowering learners worldwide.
             </p>
-            <div className="flex gap-4 pt-2">
-              <a href="#" className="hover:text-indigo-400 transition-colors"><Twitter className="w-5 h-5" /></a>
-              <a href="#" className="hover:text-indigo-400 transition-colors"><Github className="w-5 h-5" /></a>
-              <a href="#" className="hover:text-indigo-400 transition-colors"><Linkedin className="w-5 h-5" /></a>
-            </div>
           </div>
 
           {/* Popular Categories */}
@@ -47,25 +42,6 @@ const Footer = () => {
               <li><Link to="/register" className="hover:text-indigo-400 transition-colors">Become a Mentor</Link></li>
               <li><Link to="/login" className="hover:text-indigo-400 transition-colors">Sign In</Link></li>
               <li><Link to="/register" className="hover:text-indigo-400 transition-colors">Create Account</Link></li>
-            </ul>
-          </div>
-
-          {/* Contact Details */}
-          <div>
-            <h3 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Support & Contact</h3>
-            <ul className="space-y-3 text-sm text-slate-400">
-              <li className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
-                <span>100 Innovation Way, Tech Suite 400, San Francisco, CA</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-indigo-400 shrink-0" />
-                <span>+1 (555) 019-2834</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-indigo-400 shrink-0" />
-                <a href="mailto:support@eduflex.com" className="hover:text-indigo-400 transition-colors">support@eduflex.com</a>
-              </li>
             </ul>
           </div>
 
