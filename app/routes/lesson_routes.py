@@ -24,6 +24,10 @@ from app.services.curriculum_service import next_sort_order, ordered_lessons
 from app.services.s3_services import upload_file, resolve_media_url
 from app.services.email_service import send_email
 from app.extensions import db
+from app.services.s3_services import (
+    upload_file,
+    generate_presigned_url,
+)
 
 lesson_bp = Blueprint(
     "lesson",
@@ -176,9 +180,10 @@ def update_lesson(lesson_id):
 
     lesson.title = data.get("title", lesson.title)
     lesson.content = data.get("content", lesson.content)
-    lesson.video_url = data.get("video_url", lesson.video_url)
-    lesson.pdf_url = data.get("pdf_url", lesson.pdf_url)
-
+    if "video_url" in data:
+       lesson.video_url = data["video_url"]
+    if "pdf_url" in data:
+        lesson.pdf_url = data["pdf_url"]
     if "sort_order" in data:
         lesson.sort_order = data["sort_order"]
 
@@ -289,23 +294,16 @@ def upload_pdf(lesson_id):
     if not file.filename.endswith(".pdf"):
         return jsonify({"message": "Only PDF files allowed"}), 400
 
-    import os
-    import uuid
-    from flask import current_app
-    from werkzeug.utils import secure_filename
+        # Upload directly to S3
+    file_key = upload_file(file, "pdfs")
 
-    uploads_dir = os.path.join(current_app.root_path, "uploads")
-    os.makedirs(uploads_dir, exist_ok=True)
-
-    filename = f"{uuid.uuid4()}_{secure_filename(file.filename)}"
-    file.save(os.path.join(uploads_dir, filename))
-
-    file_path = f"/uploads/{filename}"
-    lesson.pdf_url = file_path
+    lesson.pdf_url = file_key
     db.session.commit()
 
-    return jsonify({"pdf_url": file_path, "message": "Uploaded"})
-
+    return jsonify({
+        "pdf_url": generate_presigned_url(file_key),
+        "message": "Uploaded"
+    })
 
 @lesson_bp.route("/<lesson_id>/upload-video", methods=["POST"])
 @jwt_required()
@@ -331,23 +329,55 @@ def upload_video(lesson_id):
     if not file.filename.lower().endswith(allowed_extensions):
         return jsonify({"message": "Invalid video format"}), 400
 
-    import os
-    import uuid
-    from flask import current_app
-    from werkzeug.utils import secure_filename
+    # Upload directly to S3
+    file_key = upload_file(file, "videos")
 
-    uploads_dir = os.path.join(current_app.root_path, "uploads")
-    os.makedirs(uploads_dir, exist_ok=True)
-
-    filename = f"{uuid.uuid4()}_{secure_filename(file.filename)}"
-    file.save(os.path.join(uploads_dir, filename))
-
-    file_path = f"/uploads/{filename}"
-    lesson.video_url = file_path
+    lesson.video_url = file_key
     db.session.commit()
 
-    return jsonify({"video_url": file_path, "message": "Uploaded"})
+    return jsonify({
+        "video_url": generate_presigned_url(file_key),
+        "message": "Uploaded"
+    })
+@lesson_bp.route("/<lesson_id>/video", methods=["DELETE"])
+@jwt_required()
+@role_required(UserRole.MENTOR)
+@approved_mentor_required
+def delete_video(lesson_id):
 
+    user_id = get_jwt_identity()
+    lesson = Lesson.query.get(lesson_id)
+
+    if not lesson:
+        return jsonify({"message": "Lesson not found"}), 404
+
+    if not _mentor_owns_lesson(user_id, lesson):
+        return jsonify({"message": "Not your course"}), 403
+
+    lesson.video_url = None
+    db.session.commit()
+
+    return jsonify({"message": "Video removed"})
+
+@lesson_bp.route("/<lesson_id>/pdf", methods=["DELETE"])
+@jwt_required()
+@role_required(UserRole.MENTOR)
+@approved_mentor_required
+def delete_pdf(lesson_id):
+
+    user_id = get_jwt_identity()
+    lesson = Lesson.query.get(lesson_id)
+
+    if not lesson:
+        return jsonify({"message": "Lesson not found"}), 404
+
+    if not _mentor_owns_lesson(user_id, lesson):
+        return jsonify({"message": "Not your course"}), 403
+
+    lesson.pdf_url = None
+    db.session.commit()
+
+    return jsonify({"message": "PDF removed"})
 
 @lesson_bp.route("/<lesson_id>", methods=["DELETE"])
 @jwt_required()

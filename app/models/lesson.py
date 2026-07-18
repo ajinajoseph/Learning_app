@@ -3,7 +3,7 @@ import uuid
 
 
 from app.extensions import db
-
+from app.services.s3_services import resolve_media_url
 
 
 
@@ -131,7 +131,9 @@ class Lesson(db.Model):
             video_url = resolve_media_url(self.video_url)
 
             pdf_url = resolve_media_url(self.pdf_url)
-
+        print("RETURN VIDEO =", video_url)
+        print("RETURN PDF =", pdf_url)
+      
 
 
         return {

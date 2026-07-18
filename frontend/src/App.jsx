@@ -13,6 +13,7 @@ import Landing from './pages/Landing';
 import CourseList from './pages/CourseList';
 import CourseDetail from './pages/CourseDetail';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Register from './pages/Register';
 import Search from './pages/Search';
 
@@ -42,7 +43,7 @@ import AdminReviews from './pages/admin/Reviews';
 
 function AppContent() {
   const location = useLocation();
-  const hideNavAndFooter = ['/login', '/register'].includes(location.pathname);
+  const hideNavAndFooter = ['/login', '/register', '/forgot-password'].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F9FAFB]">
@@ -56,6 +57,7 @@ function AppContent() {
           <Route path="/courses" element={<CourseList />} />
           <Route path="/courses/:id" element={<CourseDetail />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/search" element={<Search />} />
 

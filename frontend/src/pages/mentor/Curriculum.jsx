@@ -382,6 +382,31 @@ const Curriculum = () => {
       console.error(err);
     }
   };
+  const removeVideo = async (lessonId) => {
+  try {
+    await api.put(`/api/lessons/${lessonId}`, {
+      video_url: null,
+    });
+
+    await fetchCurriculum();
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to remove video");
+  }
+};
+
+const removePdf = async (lessonId) => {
+  try {
+    await api.put(`/api/lessons/${lessonId}`, {
+      pdf_url: null,
+    });
+
+    await fetchCurriculum();
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to remove PDF");
+  }
+};
 
   if (loading) {
     return (
@@ -494,26 +519,35 @@ const Curriculum = () => {
                             {les.pdf_url ? 'PDF Lecture' : les.video_url ? 'Video Lecture' : 'Text Lecture'}
                           </span>
                           {les.video_url && (
-                            <div className="mt-2 p-2 bg-green-50 rounded border border-green-200 flex items-center gap-1.5 max-w-max">
-                              <span className="text-green-700 text-xs font-semibold">✓ Video uploaded</span>
-                              <a 
-                                href={getFileUrl(les.video_url)} 
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-indigo-600 text-xs font-bold hover:underline"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  window.open(getFileUrl(les.video_url), '_blank');
-                                }}
-                              >
-                                Preview
-                              </a>
-                            </div>
-                          )}
-                          {les.pdf_url && (
-                            <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200 flex items-center gap-1.5 max-w-max">
-                              <span className="text-blue-700 text-xs font-semibold">✓ PDF uploaded</span>
-                              <a 
+                          <div className="mt-2 p-2 bg-green-50 rounded border border-green-200 flex items-center gap-2 max-w-max">
+                            <span className="text-green-700 text-xs font-semibold">
+                              ✓ Video uploaded
+                            </span>
+
+                            <a
+                              href={getFileUrl(les.video_url)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-indigo-600 text-xs font-bold hover:underline"
+                            >
+                              Preview
+                            </a>
+
+                            <button
+                              onClick={() => removeVideo(les.id)}
+                              className="text-red-600 text-xs font-bold hover:underline"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        )}
+                            {les.pdf_url && (
+                            <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200 flex items-center gap-2 max-w-max">
+                              <span className="text-blue-700 text-xs font-semibold">
+                                ✓ PDF uploaded
+                              </span>
+
+                              <a
                                 href={getFileUrl(les.pdf_url)}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -521,6 +555,13 @@ const Curriculum = () => {
                               >
                                 Preview
                               </a>
+
+                              <button
+                                onClick={() => removePdf(les.id)}
+                                className="text-red-600 text-xs font-bold hover:underline"
+                              >
+                                Remove
+                              </button>
                             </div>
                           )}
 

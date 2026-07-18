@@ -23,19 +23,20 @@ const Users = () => {
     fetchUsers();
   }, []);
 
-  const handleRoleChange = async (userId, newRole) => {
-    if (!window.confirm(`Are you sure you want to change this user's role to ${newRole.toUpperCase()}?`)) {
-      return;
-    }
-    try {
-      await api.put(`/api/admin/users/${userId}/role`, { role: newRole });
-      // Update local state
-      setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
-      );
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update role');
-    }
+  const handleDelete = async (userId, name) => {
+  if (!window.confirm(`Delete ${name}? This action cannot be undone.`)) {
+    return;
+  }
+
+  try {
+    await api.delete(`/api/admin/users/${userId}`);
+
+    setUsers(prev =>
+      prev.filter(user => user.id !== userId)
+    );
+  } catch (err) {
+    alert(err.response?.data?.message || "Failed to delete user");
+  }
   };
 
   return (
@@ -73,7 +74,7 @@ const Users = () => {
                   <th className="px-6 py-4">User Details</th>
                   <th className="px-6 py-4">Email</th>
                   <th className="px-6 py-4">Current Role</th>
-                  <th className="px-6 py-4 text-right">Edit Role</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
@@ -98,15 +99,21 @@ const Users = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <select
-                        value={item.role}
-                        onChange={(e) => handleRoleChange(item.id, e.target.value)}
-                        className="bg-slate-50 border border-slate-205 p-2 rounded-xl text-xs font-semibold focus:outline-none"
+                                          {item.role === "admin" ? (
+                      <button
+                        disabled
+                        className="px-4 py-2 rounded-xl bg-slate-100 text-slate-400 cursor-not-allowed text-xs font-semibold"
                       >
-                        <option value="student">Student</option>
-                        <option value="mentor">Mentor</option>
-                        <option value="admin">Admin</option>
-                      </select>
+                        Protected
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleDelete(item.id, item.name)}
+                        className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition"
+                      >
+                        Delete
+                      </button>
+                    )}
                     </td>
                   </tr>
                 ))}

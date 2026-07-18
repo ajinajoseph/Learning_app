@@ -762,6 +762,24 @@ const LearnPage = () => {
                     </p>
                   </div>
 
+                  {currentLesson?.pdf_url && (
+                    <div className="border-t border-slate-100 pt-6">
+                      <h3 className="font-bold text-slate-800 text-sm mb-3">
+                        Lesson Resources
+                      </h3>
+
+                      <a
+                        href={currentLesson.pdf_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-white border border-slate-200 p-3 rounded-xl flex items-center justify-between text-slate-700 hover:border-indigo-200 transition-colors"
+                      >
+                        <span>Lesson Notes (PDF)</span>
+                        <Download className="w-4 h-4 text-indigo-600" />
+                      </a>
+                    </div>
+                  )}
+
                   
                   {currentLesson?.attachments && currentLesson?.attachments.length > 0 && (
                     <div className="border-t border-slate-100 pt-6">
