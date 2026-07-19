@@ -79,8 +79,13 @@ const CourseCard = ({ course, progress, isMentorView,onView }) => {
         {/* Rating Placeholder */}
         <div className="flex items-center gap-1 mb-4">
           <Star className="w-4 h-4 fill-amber-400 text-amber-400 shrink-0" />
-          <span className="text-sm font-bold text-slate-800">4.7</span>
-          <span className="text-xs text-slate-400 font-medium">(184 reviews)</span>
+          <span className="text-sm font-bold text-slate-800">
+            {course.weighted_rating || course.average_rating || 0}
+          </span>
+
+<span className="text-xs text-slate-400 font-medium">
+    ({course.total_reviews || 0} reviews)
+</span>
         </div>
 
         {/* Action / Progress Row */}

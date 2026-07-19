@@ -2,7 +2,7 @@ import enum
 import uuid
 
 from app.extensions import db
-
+from app.services.review_service import get_course_rating_stats
 
 class CourseLevel(enum.Enum):
     BEGINNER = "beginner"
@@ -83,6 +83,8 @@ class Course(db.Model):
     )
 
     def to_dict(self):
+        rating = get_course_rating_stats(self.id)
+
         return {
             "id": self.id,
             "title": self.title,
@@ -94,4 +96,8 @@ class Course(db.Model):
             "tags": self.tags or [],
             "mentor_id": self.mentor_id,
             "is_approved": self.is_approved,
+
+            "average_rating": rating["average_rating"],
+            "weighted_rating": rating["weighted_rating"],
+            "total_reviews": rating["total_reviews"],
         }
