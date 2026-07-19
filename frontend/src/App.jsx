@@ -43,7 +43,7 @@ import AdminReviews from './pages/admin/Reviews';
 
 function AppContent() {
   const location = useLocation();
-  const hideNavAndFooter = ['/login', '/register', '/forgot-password'].includes(location.pathname);
+  const hideNavAndFooter = ['/login', '/register', '/forgot-password', '/success'].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F9FAFB]">
@@ -62,6 +62,7 @@ function AppContent() {
           <Route path="/search" element={<Search />} />
 
           {/* Student Routes */}
+          <Route path="/success" element={<Success />} />
           <Route element={<ProtectedRoute allowedRoles={['student']} />}>
             <Route path="/dashboard" element={<StudentDashboard />} />
             <Route path="/my-courses" element={<StudentMyCourses />} />
@@ -69,7 +70,6 @@ function AppContent() {
             <Route path="/certificates" element={<Certificates />} />
             <Route path="/payments" element={<StudentPaymentHistory />} />
             <Route path="/profile" element={<StudentProfile />} />
-            <Route path="/success" element={<Success />} />
           </Route>
 
           {/* Mentor Routes */}
