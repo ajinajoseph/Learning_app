@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import CourseCard from '../components/CourseCard';
 import SkeletonCard from '../components/SkeletonCard';
-import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Search, SlidersHorizontal, ArrowUpDown, ChevronLeft, ChevronRight, X, AlertCircle } from 'lucide-react';
@@ -32,7 +31,7 @@ const [showAuthModal, setShowAuthModal] = useState(false);
   const fetchCourses = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('http://localhost:5000/api/courses');
+      const res =  await api.get('/api/courses');
       setCourses(res.data);
     } catch (err) {
       console.error('Failed to load courses:', err);
