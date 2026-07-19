@@ -112,7 +112,7 @@ def create_app(config=None):
     socketio.init_app(
         app,
         cors_allowed_origins=frontend_url,
-        async_mode="eventlet",
+        async_mode="threading",
         message_queue=redis_url,
         logger=True,
         engineio_logger=True
