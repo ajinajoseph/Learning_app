@@ -137,13 +137,14 @@ def stripe_webhook():
     # For other event types, just acknowledge
     return jsonify({"message": "Event ignored"}), 200
 
-
 @payment_bp.route("/stripe/confirm/<session_id>", methods=["POST"])
 @jwt_required()
 def confirm_stripe_payment(session_id):
     try:
+        # Retrieve checkout session from Stripe
         session = stripe.checkout.Session.retrieve(session_id)
 
+        # Find corresponding payment in database
         payment = Payment.query.filter_by(
             transaction_id=session.id
         ).first()
@@ -153,24 +154,37 @@ def confirm_stripe_payment(session_id):
                 "success": False,
                 "message": "Payment not found"
             }), 404
-        if payment.status != PaymentStatus.COMPLETED:
-            return jsonify({
-                "success": False,
-                "message": "Payment is still processing. Please wait a few seconds and try again."
-            }), 202
-    
 
+        # Payment has been successfully completed on Stripe
+        if session.payment_status == "paid":
+
+            # Prevent duplicate processing
+            if payment.status != PaymentStatus.COMPLETED:
+                complete_stripe_payment(
+                    payment,
+                    payment_intent_id=session.payment_intent
+                )
+                db.session.commit()
+
+            return jsonify({
+                "success": True,
+                "course_id": payment.course_id
+            }), 200
+
+        # Payment still pending
         return jsonify({
-            "success": True,
-            "course_id": payment.course_id
-        })
+            "success": False,
+            "message": "Payment is still processing. Please wait a few seconds and try again."
+        }), 202
 
     except Exception as e:
+        db.session.rollback()
+        current_app.logger.exception("Stripe confirmation failed")
+
         return jsonify({
             "success": False,
             "message": str(e)
         }), 500
-
 
 @payment_bp.route("/refund/<payment_id>", methods=["POST"])
 @jwt_required()
