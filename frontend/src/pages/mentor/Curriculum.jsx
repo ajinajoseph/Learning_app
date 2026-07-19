@@ -34,7 +34,7 @@ const toast = {
 const getFileUrl = (path) => {
   if (!path) return null;
   if (path.startsWith('http')) return path;
-  return `http://localhost:5000${path}`;
+  return `${import.meta.env.VITE_API_BASE_URL}${path}`;
 };
 
 const Curriculum = () => {

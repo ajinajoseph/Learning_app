@@ -10,7 +10,7 @@ import {
   BookOpen, Search, Bell, User, LogOut, LayoutDashboard, 
   Menu, X, BookCheck, Shield, ChevronDown, ListCollapse
 } from 'lucide-react';
-const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();

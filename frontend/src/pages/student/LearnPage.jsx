@@ -12,7 +12,7 @@ const getCourseThumbnail = (course) => {
   return course?.thumbnail_url || course?.image_url ||
     course?.thumbnail || '/default-course.png';
 };
-const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 const toast = {
   success: (message) => {
     const el = document.createElement('div');
@@ -685,7 +685,7 @@ const LearnPage = () => {
               {currentLesson?.video_url ? (
                 <video
                   key={currentLesson?.id}
-                  src={currentLesson?.video_url?.startsWith('/') ? `http://localhost:5000${currentLesson?.video_url}` : currentLesson?.video_url}
+                  src={currentLesson?.video_url?.startsWith('/') ? `${import.meta.env.VITE_API_BASE_URL}${currentLesson?.video_url}` : currentLesson?.video_url}
                   controls
                   onEnded={() => handleMarkComplete(currentLesson.id)}
                   className="w-full h-full object-contain"
@@ -694,7 +694,7 @@ const LearnPage = () => {
               ) : currentLesson?.pdf_url ? (
                 <iframe
                   key={currentLesson?.id}
-                  src={currentLesson?.pdf_url?.startsWith('/') ? `http://localhost:5000${currentLesson?.pdf_url}#toolbar=0` : `${currentLesson?.pdf_url}#toolbar=0`}
+                  src={currentLesson?.pdf_url?.startsWith('/') ? `${import.meta.env.VITE_API_BASE_URL}${currentLesson?.pdf_url}#toolbar=0` : `${currentLesson?.pdf_url}#toolbar=0`}
                   title={currentLesson?.title}
                   className="w-full h-full border-none bg-white"
                 />

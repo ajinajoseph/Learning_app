@@ -21,7 +21,7 @@ const Landing = () => {
   const fetchCourses = async () => {
     try {
       // Use plain axios — no auth header needed for public route
-      const res = await axios.get('http://localhost:5000/api/courses');
+      const res = await api.get("/api/courses");
       setFeaturedCourses(res.data.slice(0, 3));
     } catch (err) {
       console.error('Failed to load courses:', err);

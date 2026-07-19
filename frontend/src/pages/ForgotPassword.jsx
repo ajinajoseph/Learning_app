@@ -34,7 +34,7 @@ const ForgotPassword = () => {
     setLoading(true);
     try {
       await axios.post(
-        'http://localhost:5000/api/auth/forgot-password',
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/forgot-password`,
         { email: email.trim().toLowerCase() }
       );
       setStep(STEPS.OTP);
@@ -99,7 +99,7 @@ const ForgotPassword = () => {
     setLoading(true);
     try {
       await axios.post(
-        'http://localhost:5000/api/auth/verify-reset-otp',
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-reset-otp`,
         { email, otp: otpString }
       );
       setStep(STEPS.NEW_PASSWORD);
@@ -131,7 +131,7 @@ const ForgotPassword = () => {
     setLoading(true);
     try {
       await axios.post(
-        'http://localhost:5000/api/auth/reset-password',
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/reset-password`,
         {
           email,
           new_password: newPassword,
@@ -154,7 +154,7 @@ const ForgotPassword = () => {
     setLoading(true);
     try {
       await axios.post(
-        'http://localhost:5000/api/auth/forgot-password',
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/forgot-password`,
         { email }
       );
       setOtp(['', '', '', '', '', '']);
