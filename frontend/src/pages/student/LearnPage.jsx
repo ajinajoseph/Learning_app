@@ -5,7 +5,7 @@ import { io } from 'socket.io-client';
 import api from '../../api/axios';
 import {
   BookOpen, ChevronLeft, ChevronRight, CheckCircle, Circle, Video, FileText,
-  HelpCircle, MessageSquare, Megaphone, Send, Award, Download, X, AlertCircle
+  HelpCircle, MessageSquare, Megaphone, Send, Award, Download, X,Star,AlertCircle
 } from 'lucide-react';
 
 const getCourseThumbnail = (course) => {
@@ -86,11 +86,12 @@ const QAReplyForm = ({ onSubmit, onCancel, placeholder = "Write a reply..." }) =
 const QAMessageNode = ({ msg, depth = 0, courseId, currentUser, onRefresh }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showReplies, setShowReplies] = useState(true);
-   const [isDeleting, setIsDeleting] = useState(false); 
+  const [isDeleting, setIsDeleting] = useState(false); 
   const isCurrentUser = msg.user_id === currentUser?.id;
   const userName = msg.user?.name || 'Student';
   const initial = userName.charAt(0).toUpperCase();
   const replyCount = msg.replies?.length || 0;
+  
 
   const avatarColor = depth === 0
     ? 'bg-indigo-100 text-indigo-700'
@@ -261,6 +262,23 @@ const LearnPage = () => {
   const [quizError, setQuizError] = useState('');
   const [certificateUrl, setCertificateUrl] = useState('');
   const [isGeneratingCert, setIsGeneratingCert] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [ratingStats, setRatingStats] = useState(null);
+
+  const [newRating, setNewRating] = useState(5);
+  const [newComment, setNewComment] = useState("");
+
+  const [reviewSuccess, setReviewSuccess] = useState("");
+  const [reviewError, setReviewError] = useState("");
+
+  const [isEnrolled, setIsEnrolled] = useState(true);
+  const totalReviews = ratingStats?.total_reviews || 1;
+
+const width5 = `${((ratingStats?.five_star || 0) / totalReviews) * 100}%`;
+const width4 = `${((ratingStats?.four_star || 0) / totalReviews) * 100}%`;
+const width3 = `${((ratingStats?.three_star || 0) / totalReviews) * 100}%`;
+const width2 = `${((ratingStats?.two_star || 0) / totalReviews) * 100}%`;
+const width1 = `${((ratingStats?.one_star || 0) / totalReviews) * 100}%`;
   const socketRef = useRef(null);
   const chatBottomRef = useRef(null);
   const fetchCurriculum = async () => {
@@ -336,7 +354,10 @@ const LearnPage = () => {
       fetchQAThreads();
     } else if (activeTab === 'chat') {
       fetchChatHistory();
-    } else if (activeTab === 'announcements') {
+    } 
+    else if(activeTab==="reviews"){
+    fetchReviews();
+    }else if (activeTab === 'announcements') {
       fetchAnnouncements();
     }
   }, [activeTab, courseId]);
@@ -509,6 +530,17 @@ const LearnPage = () => {
       console.error('Announcements failed:', err);
     }
   };
+  const fetchReviews = async () => {
+  try {
+    const res = await api.get(`/api/reviews/${courseId}`);
+
+    setReviews(res.data.reviews || []);
+    setRatingStats(res.data.rating_stats || null);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
   const handleOpenQuiz = async (quizId) => {
     setQuizError('');
     setQuizResult(null);
@@ -527,6 +559,35 @@ const LearnPage = () => {
       ...prev,
       [questionId]: optionId,
     }));
+  };
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+
+    setReviewSuccess("");
+    setReviewError("");
+
+    try{
+
+        await api.post(`/api/reviews/${courseId}`,{
+            rating:newRating,
+            comment:newComment
+        });
+
+        setReviewSuccess("Review submitted successfully.");
+
+        setNewComment("");
+        setNewRating(5);
+
+        fetchReviews();
+
+    }catch(err){
+
+        setReviewError(
+            err.response?.data?.message ||
+            "Unable to submit review."
+        );
+
+    }
   };
 
   const handleQuizSubmit = async (e) => {
@@ -738,7 +799,7 @@ const LearnPage = () => {
           )}
           <div className="p-6 max-w-4xl w-full mx-auto space-y-6">
             <div className="flex border-b border-slate-200 gap-6 text-sm font-semibold mb-6">
-              {['overview', 'qa', 'chat', 'announcements'].map((tab) => (
+              {['overview', 'qa', 'chat', 'reviews', 'announcements'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -913,36 +974,226 @@ const LearnPage = () => {
                   </form>
                 </div>
               )}
-              {activeTab === 'announcements' && (
-                <div className="space-y-4">
-                  {announcements.length === 0 ? (
-                    <p className="text-xs text-slate-400 italic text-center py-8">No announcements posted for this course.</p>
-                  ) : (
-                    announcements.map((ann) => (
-                      <div key={ann.id} className="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex gap-3.5 items-start">
-                        <div className="bg-indigo-50 p-2.5 rounded-xl text-indigo-655 text-indigo-605 text-indigo-600 shrink-0">
-                          <Megaphone className="w-5 h-5" />
-                        </div>
-                        <div className="space-y-1">
-                          <div className="flex justify-between items-baseline mb-0.5">
-                            <h4 className="font-bold text-slate-805 text-slate-800 text-sm">{ann.title}</h4>
-                            <span className="text-[10px] text-slate-400">{new Date(ann.created_at).toLocaleDateString()}</span>
-                          </div>
-                          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">{ann.message}</p>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
 
+              {activeTab === 'reviews' && (
+  <div className="space-y-8">
+    <h2 className="text-lg font-bold text-slate-900 mb-2">
+      Student Reviews
+    </h2>
+
+    {/* Stats Summary */}
+    {ratingStats && (
+      <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 flex flex-col sm:flex-row items-center gap-6">
+        <div className="text-center sm:text-left space-y-1">
+          <span className="block text-4xl font-extrabold text-slate-800">
+             {Number(ratingStats?.average_rating || 0).toFixed(1) || "0.0"}
+          </span>
+          <div className="flex gap-0.5 justify-center sm:justify-start">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={`w-4 h-4 ${
+                  i < Math.round(ratingStats.average_rating || 0)
+                    ? "fill-amber-400 text-amber-400"
+                    : "text-slate-300"
+                }`}
+              />
+            ))}
+          </div>
+          <span className="text-xs text-slate-400 font-medium block">
+             {ratingStats.total_reviews} Reviews
+          </span>
+        </div>
+
+        <div className="flex-1 w-full text-slate-600 text-xs space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="w-12">5 Star</span>
+            <div className="flex-1 bg-slate-200 h-2 rounded overflow-hidden">
+              <div
+                className="bg-amber-400 h-full rounded"
+                style={{ width: width5 }}
+              />
             </div>
-
           </div>
 
-        </main>
+          <div className="flex items-center gap-2">
+            <span className="w-12">4 Star</span>
+            <div className="flex-1 bg-slate-200 h-2 rounded overflow-hidden">
+              <div
+                className="bg-amber-400 h-full rounded"
+                style={{ width: width4 }}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="w-12">3 Star</span>
+            <div className="flex-1 bg-slate-200 h-2 rounded overflow-hidden">
+              <div
+                className="bg-amber-400 h-full rounded"
+                style={{ width: width3 }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Reviews */}
+    <div className="space-y-4">
+      {reviews.length === 0 ? (
+        <div className="py-8 text-center text-slate-400 text-sm">
+          No reviews have been published for this course yet.
+        </div>
+      ) : (
+        reviews.map((rev) => (
+          <div
+            key={rev.id}
+            className="p-4 border border-slate-100 rounded-xl bg-white space-y-2.5"
+          >
+            <div className="flex justify-between items-baseline flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-slate-800 text-sm">
+                  {rev.student_name || rev.user?.name || "Student"}
+                </span>
+
+                <div className="flex gap-0.5">
+                  {Array(5)
+                    .fill(0)
+                    .map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-3.5 h-3.5 ${
+                          i < rev.rating
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-slate-200"
+                        }`}
+                      />
+                    ))}
+                </div>
+              </div>
+
+              <span className="text-[10px] text-slate-400">
+                {new Date(
+                  rev.created_at || Date.now()
+                ).toLocaleDateString()}
+              </span>
+            </div>
+
+            <p className="text-sm text-slate-700 italic">
+              "{rev.comment || "No comment provided"}"
+            </p>
+          </div>
+        ))
+      )}
+    </div>
+
+    {/* Review Form */}
+    {isEnrolled && (user?.role || "").toLowerCase() === "student" && (
+      <div className="pt-6 border-t border-slate-100 space-y-4">
+        <h3 className="font-bold text-slate-800 text-base">
+          Write a Course Review
+        </h3>
+
+        {reviewSuccess && (
+          <div className="bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl p-3 text-xs">
+            {reviewSuccess}
+          </div>
+        )}
+
+        {reviewError && (
+          <div className="bg-red-50 text-red-700 border border-red-100 rounded-xl p-3 text-xs">
+            {reviewError}
+          </div>
+        )}
+
+        <form onSubmit={handleReviewSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
+              Rating
+            </label>
+
+            <select
+              value={newRating}
+              onChange={(e) => setNewRating(Number(e.target.value))}
+              className="bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-sm"
+            >
+              <option value={5}>5 Stars - Excellent</option>
+              <option value={4}>4 Stars - Good</option>
+              <option value={3}>3 Stars - Average</option>
+              <option value={2}>2 Stars - Poor</option>
+              <option value={1}>1 Star - Horrible</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
+              Review Comment
+            </label>
+
+            <textarea
+              rows={3}
+              required
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Share your learning experience..."
+              className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-full"
+          >
+            Submit Review
+          </button>
+        </form>
+      </div>
+    )}
+  </div>
+)}
+
+{activeTab === "announcements" && (
+  <div className="space-y-4">
+    {announcements.length === 0 ? (
+      <p className="text-xs text-slate-400 italic text-center py-8">
+        No announcements posted for this course.
+      </p>
+    ) : (
+      announcements.map((ann) => (
+        <div
+          key={ann.id}
+          className="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex gap-3.5 items-start"
+        >
+          <div className="bg-indigo-50 p-2.5 rounded-xl text-indigo-600 shrink-0">
+            <Megaphone className="w-5 h-5" />
+          </div>
+
+          <div className="space-y-1 flex-1">
+            <div className="flex justify-between items-baseline">
+              <h4 className="font-bold text-slate-800 text-sm">
+                {ann.title}
+              </h4>
+
+              <span className="text-[10px] text-slate-400">
+                {new Date(ann.created_at).toLocaleDateString()}
+              </span>
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+              {ann.message}
+            </p>
+          </div>
+        </div>
+      ))
+    )}
+  </div>
+)}
 
       </div>
+    </div>
+  </main>
+</div>
       {quizModalOpen && quizDetails && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm px-4">
           <div className="bg-white max-w-lg w-full rounded-2xl shadow-2xl border border-slate-150 p-6 flex flex-col justify-between max-h-[85vh] overflow-hidden">

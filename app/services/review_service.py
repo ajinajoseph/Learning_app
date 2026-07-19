@@ -58,8 +58,15 @@ def calculate_weighted_rating(course_id):
 
 def get_course_rating_stats(course_id):
     approved_reviews = _approved_reviews(course_id)
+
     return {
         "total_reviews": len(approved_reviews),
         "average_rating": calculate_average_rating(course_id),
         "weighted_rating": calculate_weighted_rating(course_id),
+
+        "five_star": sum(1 for r in approved_reviews if r.rating == 5),
+        "four_star": sum(1 for r in approved_reviews if r.rating == 4),
+        "three_star": sum(1 for r in approved_reviews if r.rating == 3),
+        "two_star": sum(1 for r in approved_reviews if r.rating == 2),
+        "one_star": sum(1 for r in approved_reviews if r.rating == 1),
     }
