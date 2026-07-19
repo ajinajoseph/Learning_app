@@ -220,7 +220,22 @@ const CourseDetail = () => {
   }
 
   const thumbnail = getCourseThumbnail(course.title);
+  const totalReviews = ratingStats?.total_reviews || 0;
 
+  const fivePercent =
+    totalReviews > 0 ? (ratingStats.five_star / totalReviews) * 100 : 0;
+
+  const fourPercent =
+    totalReviews > 0 ? (ratingStats.four_star / totalReviews) * 100 : 0;
+
+  const threePercent =
+    totalReviews > 0 ? (ratingStats.three_star / totalReviews) * 100 : 0;
+
+  const twoPercent =
+    totalReviews > 0 ? (ratingStats.two_star / totalReviews) * 100 : 0;
+
+  const onePercent =
+    totalReviews > 0 ? (ratingStats.one_star / totalReviews) * 100 : 0;
   return (
     <div className="bg-[#F9FAFB] min-h-screen">
 
@@ -244,7 +259,10 @@ const CourseDetail = () => {
               <div className="flex flex-wrap gap-4 sm:gap-6 pt-2 text-xs sm:text-sm text-slate-305 text-slate-400">
                 <span className="flex items-center gap-1.5">
                   <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  <strong className="text-white">4.7</strong> (184 ratings)
+                  <strong className="text-white">
+                    {ratingStats?.weighted_rating || ratingStats?.average_rating || 0}
+                  </strong>{" "}
+                  ({ratingStats?.total_reviews || 0} ratings)
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Clock className="w-4 h-4 text-slate-400" /> {course.duration_hours || '12'} Hours
@@ -386,28 +404,88 @@ const CourseDetail = () => {
                   {ratingStats && (
                     <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 flex flex-col sm:flex-row items-center gap-6">
                       <div className="text-center sm:text-left space-y-1">
-                        <span className="block text-4xl font-extrabold text-slate-800">4.7</span>
+                        <span className="block text-4xl font-extrabold text-slate-800">
+                          {ratingStats?.weighted_rating || ratingStats?.average_rating || 0}
+                        </span>
                         <div className="flex gap-0.5 justify-center sm:justify-start">
-                          {Array(5).fill(0).map((_, i) => (
-                            <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-4 h-4 ${
+                                i < Math.round(
+                                  ratingStats?.weighted_rating || ratingStats?.average_rating || 0
+                                )
+                                  ? "fill-amber-400 text-amber-400"
+                                  : "text-slate-300"
+                              }`}
+                            />
                           ))}
                         </div>
-                        <span className="text-xs text-slate-400 font-medium block">Course Rating Stats</span>
+                        <span className="text-xs text-slate-400 font-medium block"> {ratingStats?.total_reviews || 0} Reviews</span>
                       </div>
-                      <div className="flex-1 w-full text-slate-600 text-xs space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <span className="w-12">5 Star</span>
-                          <div className="flex-1 bg-slate-200 h-2 rounded overflow-hidden"><div className="bg-amber-400 h-full rounded w-[80%]"></div></div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-12">4 Star</span>
-                          <div className="flex-1 bg-slate-200 h-2 rounded overflow-hidden"><div className="bg-amber-400 h-full rounded w-[15%]"></div></div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-12">3 Star</span>
-                          <div className="flex-1 bg-slate-200 h-2 rounded overflow-hidden"><div className="bg-amber-400 h-full rounded w-[5%]"></div></div>
-                        </div>
-                      </div>
+                      <div className="flex-1 w-full text-slate-600 text-xs space-y-2">
+
+  {/* 5 Star */}
+  <div className="flex items-center gap-2">
+    <span className="w-12">5 Star</span>
+    <div className="flex-1 bg-slate-200 h-2 rounded overflow-hidden">
+      <div
+        className="bg-amber-400 h-full rounded"
+        style={{ width: `${fivePercent}%` }}
+      />
+    </div>
+    <span className="w-6 text-right">{ratingStats?.five_star || 0}</span>
+  </div>
+
+  {/* 4 Star */}
+  <div className="flex items-center gap-2">
+    <span className="w-12">4 Star</span>
+    <div className="flex-1 bg-slate-200 h-2 rounded overflow-hidden">
+      <div
+        className="bg-amber-400 h-full rounded"
+        style={{ width: `${fourPercent}%` }}
+      />
+    </div>
+    <span className="w-6 text-right">{ratingStats?.four_star || 0}</span>
+  </div>
+
+  {/* 3 Star */}
+  <div className="flex items-center gap-2">
+    <span className="w-12">3 Star</span>
+    <div className="flex-1 bg-slate-200 h-2 rounded overflow-hidden">
+      <div
+        className="bg-amber-400 h-full rounded"
+        style={{ width: `${threePercent}%` }}
+      />
+    </div>
+    <span className="w-6 text-right">{ratingStats?.three_star || 0}</span>
+  </div>
+
+  {/* 2 Star */}
+  <div className="flex items-center gap-2">
+    <span className="w-12">2 Star</span>
+    <div className="flex-1 bg-slate-200 h-2 rounded overflow-hidden">
+      <div
+        className="bg-amber-400 h-full rounded"
+        style={{ width: `${twoPercent}%` }}
+      />
+    </div>
+    <span className="w-6 text-right">{ratingStats?.two_star || 0}</span>
+  </div>
+
+  {/* 1 Star */}
+  <div className="flex items-center gap-2">
+    <span className="w-12">1 Star</span>
+    <div className="flex-1 bg-slate-200 h-2 rounded overflow-hidden">
+      <div
+        className="bg-amber-400 h-full rounded"
+        style={{ width: `${onePercent}%` }}
+      />
+    </div>
+    <span className="w-6 text-right">{ratingStats?.one_star || 0}</span>
+  </div>
+
+</div>
                     </div>
                   )}
 
