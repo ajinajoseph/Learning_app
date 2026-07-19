@@ -17,17 +17,6 @@ def _get_boto_config():
 
 
 def get_s3_client():
-    # Temporarily unpatch SSL if gevent has patched it
-    try:
-        import gevent.monkey
-        if gevent.monkey.is_module_patched('ssl'):
-            import ssl
-            import _ssl
-            # Restore original SSL before boto3 call
-            ssl.SSLContext = _ssl._SSLContext
-    except Exception:
-        pass
-
     return boto3.client(
         "s3",
         aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),

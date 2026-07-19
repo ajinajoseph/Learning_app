@@ -1,5 +1,5 @@
-from gevent import monkey
-monkey.patch_all(ssl=False)
+import eventlet
+eventlet.monkey_patch() 
 import os
 from app import create_app
 from app.extensions import socketio
