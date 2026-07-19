@@ -10,7 +10,7 @@ import {
   BookOpen, Search, Bell, User, LogOut, LayoutDashboard, 
   Menu, X, BookCheck, Shield, ChevronDown, ListCollapse
 } from 'lucide-react';
-
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,7 +35,7 @@ const Navbar = () => {
       try {
         const token = localStorage.getItem('token') || localStorage.getItem('access_token');
         // Connect to Socket.IO backend
-        socketRef.current = io('http://localhost:5000', {
+        socketRef.current =io(BACKEND_URL, {
           transports: ['websocket', 'polling'],
           reconnection: true,
           reconnectionAttempts: 5,

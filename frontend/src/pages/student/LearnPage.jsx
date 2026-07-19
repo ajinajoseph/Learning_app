@@ -12,7 +12,7 @@ const getCourseThumbnail = (course) => {
   return course?.thumbnail_url || course?.image_url ||
     course?.thumbnail || '/default-course.png';
 };
-
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const toast = {
   success: (message) => {
     const el = document.createElement('div');
@@ -354,7 +354,7 @@ const LearnPage = () => {
     if (user && courseId) {
       try {
         const token = localStorage.getItem('access_token');
-        const socket = io('http://localhost:5000', {
+        const socket =io(BACKEND_URL,{
           transports: ['websocket', 'polling'],
           reconnection: true,
           reconnectionAttempts: 10,

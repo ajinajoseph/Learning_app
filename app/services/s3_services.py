@@ -1,11 +1,13 @@
 import uuid
-
+import os
 import boto3
-
 from flask import current_app
 
 
 def get_s3_client():
+    import ssl
+    if hasattr(ssl, '_original_SSLContext'):
+        ssl.SSLContext = ssl._original_SSLContext
     return boto3.client(
         "s3",
         aws_access_key_id=current_app.config["AWS_ACCESS_KEY_ID"],
